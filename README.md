@@ -1,5 +1,5 @@
 ## What is it? ##
-This is how to connect to my [Nightscout](https://github.com/nightscout) server over socket.io to receive real-time information without having to poll it. 
+This is how to connect to a [Nightscout](https://github.com/nightscout) server over socket.io to receive real-time information without having to poll it. 
 
 I've only implemented the functionality I've needed so consider it a partial implementation, but you will get data updates, alarms, and alarm clear events.
 
