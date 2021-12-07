@@ -1,7 +1,7 @@
 ## What is it? ##
-I didn't finnd an official API to connect to [Nightscout](https://github.com/nightscout) over a websocket (which I wanted so I didn't have to poll the API for real-time info) so I wrote this workaround library. 
+I didn't find an official API to connect to [Nightscout](https://github.com/nightscout) over a websocket (which I wanted so I didn't have to poll the API for real-time info) so I wrote this workaround library. 
 
-THis library connects to a [Nightscout](https://github.com/nightscout) server over socket.io (which is used for the NS web interface) to receive real-time information without having to poll it just like the real front-end does. 
+This library connects to a [Nightscout](https://github.com/nightscout) server over socket.io (which is used for the NS web interface) to receive real-time information without having to poll it just like the real front-end does. 
 
 I've only implemented the functionality I've needed so consider it a partial implementation, but you will get data updates, alarms, and alarm clear events.
 
