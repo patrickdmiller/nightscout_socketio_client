@@ -1,5 +1,4 @@
 const ns = require('./lib/index');
-const fs = require('fs');
 const logger = require('node-color-log');
 
 ns.logger.setLevel('info'); //instance of node-color-log
