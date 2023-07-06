@@ -1,2 +1,2 @@
 export * from './ns';
-export * from './ns-types';
+export * as NSType from './ns-types';
