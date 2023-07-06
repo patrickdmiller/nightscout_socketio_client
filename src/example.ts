@@ -1,5 +1,4 @@
-import { NS } from './'
-import * as NSType from './ns-types'
+import { NS, NSType } from './'
 console.log('Runnin Example')
 const ns = new NS()
 ns.init()
