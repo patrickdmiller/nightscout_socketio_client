@@ -1,61 +1,113 @@
-export declare enum NSDataFlag {
-    "SGVS" = "sgvs",
-    "MBGS" = "mbgs",
-    'TREATMENTS' = "treatments"
-}
-export declare const SGVDirections: {
-    readonly 0: "FLAT";
-    readonly 1: "FortyFiveUp";
-    readonly 2: "FortyFiveDown";
-    readonly 3: "SingleUp";
-    readonly 4: "SingleDown";
-    readonly 5: "DoubleUp";
-    readonly 6: "DoubleDown";
+export type NSAuth = {
+    client: string;
+    secret: string;
+    token: string | null;
 };
-type SGVDirectionValues = typeof SGVDirections[keyof typeof SGVDirections];
+export declare enum NSDataFlag {
+    'sgvs' = "sgvs",
+    'mbgs' = "mbgs",
+    'treatments' = "treatments",
+    'treatments_removal' = "treatments_removal"
+}
+export declare enum SGVDirections {
+    'Flat' = "Flat",
+    'FortyFiveUp' = "FortyFiveUp",
+    'FortyFiveDown' = "FortyFiveDown",
+    'SingleUp' = "SingleUp",
+    'SingleDown' = "SingleDown",
+    'DoubleUp' = "DoubleUp",
+    'DoubleDown' = "DoubleDown"
+}
 export interface SGV {
     _id: string;
     mgdl: number;
     mills: number;
     device: string;
-    direction: SGVDirectionValues;
+    direction: SGVDirections;
     date: Date;
 }
 export interface SGVRaw extends Omit<SGV, 'date'> {
-    date: string;
+    date?: string;
     type: 'sgv';
 }
-export type MBGSRaw = {
+export type MBGS = {
     _id: string;
     mgdl: number;
     mills: number;
     device: string;
-    type: 'mbg';
-};
-export interface MBGS extends MBGSRaw {
     date: Date;
-}
-export type TreatmentRaw = {
-    _id: string;
 };
-export interface TreatmentCorrectionBolusRaw extends TreatmentRaw {
+export interface MBGSRaw extends Omit<MBGS, 'date'> {
+    date: string;
+    type: 'mbgs';
 }
-export type TreatmentCarbCorrectionRaw = {};
-export interface TreatmentTempBasalRaw extends TreatmentRaw {
-    amount: number;
+export declare enum TreatmentTypes {
+    'Correction Bolus' = "Correction Bolus",
+    'Temp Basal' = "Temp Basal",
+    'Note' = "Note",
+    'Carb Correction' = "Carb Correction",
+    'Suspend Pump' = "Suspend Pump"
+}
+export interface Treatment {
+    _id: string;
+    timestamp: Date;
+    created_at: Date;
+    userEnteredAt?: Date;
+    utcOffset: number;
+    mills: number;
+    mgdl: number;
+    syncIdentifier?: string;
+    automatic?: boolean;
+    enteredBy?: string;
+    eventType: string;
+}
+export interface TreatmentRaw extends Omit<Treatment, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+    created_at?: string;
+    timestamp?: string;
+    userEnteredAt?: string;
+}
+export interface TreatmentCorrectionBolus extends Treatment {
+    insulin: number;
+    unabsorbed: number;
+    eventType: (typeof TreatmentTypes)['Correction Bolus'];
+    programmed: number;
     duration: number;
-    absolute: 0;
-    enteredBy: string;
-    eventType: 'Temp Basal';
     insulinType: string;
-    timestamp: '2023-06-07T09:20:07Z';
-    syncIdentifier: '74656d70426173616c20302e3020323032332d30362d30375430393a32303a30375a';
-    rate: 0;
-    automatic: true;
-    temp: 'absolute';
-    created_at: '2023-06-07T09:20:07.000Z';
-    utcOffset: 0;
-    mills: 1686129607000;
-    mgdl: 98;
+    type: string;
 }
-export {};
+export interface TreatmentCorrectionBolusRaw extends Omit<TreatmentCorrectionBolus, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+    created_at?: string;
+    timestamp?: string;
+    userEnteredAt?: string;
+}
+export interface TreatmentCarbCorrection extends Treatment {
+    foodType: string;
+    eventType: (typeof TreatmentTypes)['Carb Correction'];
+    absorptionTime: number;
+    carbs: number;
+    userEnteredAt: Date;
+}
+export interface TreatmentCarbCorrectionRaw extends Omit<TreatmentCorrectionBolus, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+    created_at?: string;
+    timestamp?: string;
+    userEnteredAt?: string;
+}
+export interface TreatmentTempBasal extends Treatment {
+    insulinType: string;
+    rate: number;
+    eventType: (typeof TreatmentTypes)['Temp Basal'];
+    absolute: number;
+    duration: number;
+    amount: number;
+    temp: 'absolute';
+}
+export interface TreatmentTempBasalRaw extends Omit<TreatmentTempBasal, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+    created_at?: string;
+    timestamp?: string;
+    userEnteredAt?: string;
+}
+export interface TreatmentRemoval {
+    action: string;
+    mills: number;
+    _id: string;
+}

@@ -1,149 +1,131 @@
-export enum NSDataFlag {
-  "SGVS" = 'sgvs',
-  "MBGS" = 'mbgs',
-  'TREATMENTS' = 'treatments',
+export type NSAuth = {
+  client: string
+  secret: string
+  token: string | null
 }
 
-//const instead of Enum because this maps the integers from NS to the direction
-export const SGVDirections = {
-  0: 'FLAT',
-  1: 'FortyFiveUp',
-  2: 'FortyFiveDown',
-  3: 'SingleUp',
-  4: 'SingleDown',
-  5: 'DoubleUp',
-  6: 'DoubleDown'
-} as const;
+export enum NSDataFlag {
+  'sgvs' = 'sgvs',
+  'mbgs' = 'mbgs',
+  'treatments' = 'treatments',
+  'treatments_removal' = 'treatments_removal',
+}
 
-type SGVDirectionValues = typeof SGVDirections[keyof typeof SGVDirections];
-
-//we parse the string date
+export enum SGVDirections {
+  'Flat' = 'Flat',
+  'FortyFiveUp' = 'FortyFiveUp',
+  'FortyFiveDown' = 'FortyFiveDown',
+  'SingleUp' = 'SingleUp',
+  'SingleDown' = 'SingleDown',
+  'DoubleUp' = 'DoubleUp',
+  'DoubleDown' = 'DoubleDown',
+}
 export interface SGV {
-  _id: string;
-  mgdl: number;
-  mills: number;
-  device: string;
-  direction: SGVDirectionValues
-  date: Date;
+  _id: string
+  mgdl: number
+  mills: number
+  device: string
+  direction: SGVDirections
+  date: Date
 }
 
 //raw data coming from nightscout
 export interface SGVRaw extends Omit<SGV, 'date'> {
-  date: string,
+  date?: string
   type: 'sgv'
 }
 
-
-
-export type MBGSRaw = {
-  _id: string;
-  mgdl: number;
-  mills: number;
-  device: string;
-  type: 'mbg';
+export type MBGS = {
+  _id: string
+  mgdl: number
+  mills: number
+  device: string
+  date: Date
 }
 
-export interface MBGS extends MBGSRaw {
-  date: Date;
+export interface MBGSRaw extends Omit<MBGS, 'date'> {
+  date: string
+  type: 'mbgs'
 }
 
-/*
- 'Correction Bolus': 1,
-  'Temp Basal': 1,
-  Note: 1,
-  'Carb Correction': 1,
-  'Suspend Pump': 1
-  */
-export type TreatmentRaw = {
-  _id: string;
-
+export enum TreatmentTypes {
+  'Correction Bolus' = 'Correction Bolus',
+  'Temp Basal' = 'Temp Basal',
+  'Note' = 'Note',
+  'Carb Correction' = 'Carb Correction',
+  'Suspend Pump' = 'Suspend Pump',
 }
-export interface TreatmentCorrectionBolusRaw extends TreatmentRaw {
 
-
+export interface Treatment {
+  _id: string
+  timestamp: Date
+  created_at: Date
+  userEnteredAt?: Date
+  utcOffset: number
+  mills: number
+  mgdl: number
+  syncIdentifier?: string
+  automatic?: boolean
+  enteredBy?: string
+  eventType: string
 }
-export type TreatmentCarbCorrectionRaw = {}
-export interface TreatmentTempBasalRaw extends TreatmentRaw {
 
-  amount: number,
+export interface TreatmentRaw
+  extends Omit<Treatment, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+  created_at?: string
+  timestamp?: string
+  userEnteredAt?: string
+}
+export interface TreatmentCorrectionBolus extends Treatment {
+  insulin: number
+  unabsorbed: number
+  eventType: (typeof TreatmentTypes)['Correction Bolus']
+  programmed: number
   duration: number
-  absolute: 0,
-  enteredBy: string,
-  eventType: 'Temp Basal',
-  insulinType: string,
-  timestamp: '2023-06-07T09:20:07Z',
-  syncIdentifier: '74656d70426173616c20302e3020323032332d30362d30375430393a32303a30375a',
-  rate: 0,
-  automatic: true,
-  temp: 'absolute',
-  created_at: '2023-06-07T09:20:07.000Z',
-  utcOffset: 0,
-  mills: 1686129607000,
-  mgdl: 98
-}
-}
-_id: string;
-timestamp: string;
-temp: 'absolute',
-  syncIdentifier: '74656d70426173616c20302e3020323032332d30362d30385430343a35303a30305a',
-    rate: 0,
-      absolute: 0,
-        enteredBy: 'loop://iPhone',
-          duration: 10.1631558517615,
-            amount: 0,
-              eventType: 'Temp Basal',
-                created_at: '2023-06-08T04:50:00.000Z',
-                  automatic: true,
-                    insulinType: 'Humalog',
-                      utcOffset: 0,
-                        mills: 1686199800000,
-                          mgdl: 125
-
-{
-  _id: '6481511405264c5abfc4c5d5',
-    insulin: 0.1,
-      unabsorbed: 0,
-        created_at: '2023-06-08T03:54:59.000Z',
-          automatic: true,
-            eventType: 'Correction Bolus',
-              timestamp: '2023-06-08T03:54:59Z',
-                programmed: 0.1,
-                  duration: 0.06666666666666667,
-                    syncIdentifier: '626f6c757320302e3120323032332d30362d30385430333a35343a35395a',
-                      insulinType: 'Humalog',
-                        type: 'normal',
-                          enteredBy: 'loop://iPhone',
-                            utcOffset: 0,
-                              mills: 1686196499000,
-                                mgdl: 153
+  insulinType: string
+  type: string
 }
 
+export interface TreatmentCorrectionBolusRaw
+  extends Omit<TreatmentCorrectionBolus, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+  created_at?: string
+  timestamp?: string
+  userEnteredAt?: string
+}
 
-// food
-// treatments
-// dbstats
-// { mbgs: 1 }
-// delta
-// lastUpdated
-// sgvs
-// devicestatus
-// {}
-// delta
-// lastUpdated
-// sgvs
-// {}
+export interface TreatmentCarbCorrection extends Treatment {
+  foodType: string
+  eventType: (typeof TreatmentTypes)['Carb Correction']
+  absorptionTime: number
+  carbs: number
+  userEnteredAt: Date
+}
+export interface TreatmentCarbCorrectionRaw
+  extends Omit<TreatmentCorrectionBolus, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+  created_at?: string
+  timestamp?: string
+  userEnteredAt?: string
+}
 
+export interface TreatmentTempBasal extends Treatment {
+  insulinType: string
+  rate: number
+  eventType: (typeof TreatmentTypes)['Temp Basal']
+  absolute: number
+  duration: number
+  amount: number
+  temp: 'absolute'
+}
 
-/*
-devicestatus
-sgvs
-cals
-profiles
-mbgs
-food
-treatments
-dbstats
-delta
-lastUpdated
-sgvs
-*/
+export interface TreatmentTempBasalRaw
+  extends Omit<TreatmentTempBasal, 'created_at' | 'timestamp' | 'userEnteredAt'> {
+  created_at?: string
+  timestamp?: string
+  userEnteredAt?: string
+}
+
+export interface TreatmentRemoval {
+  action: string
+  mills: number
+  _id: string
+}
