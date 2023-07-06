@@ -1,10 +1,8 @@
-import { configDotenv } from 'dotenv'
+require('dotenv').config({ path: require('find-config')('.env') })
 import { writeFile } from 'fs'
 import { EventEmitter } from 'events'
 
 import * as NSTypes from './ns-types'
-
-configDotenv()
 
 // we had to use old socket.io-client to be compatbile with nightscout, it is not typescript.
 const io = require('socket.io-client')
