@@ -10,6 +10,14 @@ export enum NSDataFlag {
   'treatments' = 'treatments',
   'treatments_removal' = 'treatments_removal',
 }
+export enum NSDataFlagHistory {
+  'history_sgvs' = 'history_sgvs',
+  'history_mbgs' = 'history_mbgs',
+  'history_treatments' = 'history_treatments',
+  'history_treatments_removal' = 'history_treatments_removal',
+}
+
+export type Events = NSDataFlag | NSDataFlagHistory
 
 export enum SGVDirections {
   'Flat' = 'Flat',
@@ -20,6 +28,7 @@ export enum SGVDirections {
   'DoubleUp' = 'DoubleUp',
   'DoubleDown' = 'DoubleDown',
 }
+
 export interface SGV {
   _id: string
   mgdl: number

@@ -1,6 +1,6 @@
 {
   "name": "nightscout_socketio_client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "connects to nightscout socket so you can receive events in node js",
   "types": "lib/index.d.ts",
   "files": [

@@ -2,7 +2,7 @@ require('dotenv').config({ path: require('find-config')('.env') })
 import { writeFile } from 'fs'
 import { EventEmitter } from 'events'
 
-import * as NSTypes from './ns-types'
+import * as NSType from './ns-types'
 
 // we had to use old socket.io-client to be compatbile with nightscout, it is not typescript.
 const io = require('socket.io-client')
@@ -49,7 +49,7 @@ export class NS extends EventEmitter {
   }
 
   authorize() {
-    const auth_data: NSTypes.NSAuth = {
+    const auth_data: NSType.NSAuth = {
       client: 'web',
       secret: this.secret,
       token: null,
@@ -70,50 +70,50 @@ export class NS extends EventEmitter {
   }
 
   dataUpdate(data: any) {
+    let isHistory = false
     if ('delta' in data) {
-      console.log('this is an update')
     } else {
-      console.log('this is history.')
+      isHistory = true
     }
 
     const events: Map<
-      NSTypes.NSDataFlag,
-      NSTypes.SGV[] | NSTypes.MBGS[] | NSTypes.Treatment[] | NSTypes.TreatmentRemoval[]
+      NSType.NSDataFlag,
+      NSType.SGV[] | NSType.MBGS[] | NSType.Treatment[] | NSType.TreatmentRemoval[]
     > = new Map()
-    writeFile('out.json', JSON.stringify(data), () => {})
-    const watchList = new Set(Object.values(NSTypes.NSDataFlag))
-    const treatmentWatchList = new Set(Object.keys(NSTypes.TreatmentTypes))
+    // writeFile('out.json', JSON.stringify(data), () => {})
+    const watchList = new Set(Object.values(NSType.NSDataFlag))
+    const treatmentWatchList = new Set(Object.keys(NSType.TreatmentTypes))
     for (const key in data) {
       // key is a string, cast it to see if it is in the set safely
-      if (watchList.has(key as NSTypes.NSDataFlag)) {
+      if (watchList.has(key as NSType.NSDataFlag)) {
         console.log(' -- key -- ', key)
         switch (key) {
-          case NSTypes.NSDataFlag.sgvs:
-            const sgvs: NSTypes.SGV[] = []
-            for (const sgv of data[key] as NSTypes.SGVRaw[]) {
-              sgvs.push({ ...sgv, date: new Date(sgv.mills) } as NSTypes.SGV)
+          case NSType.NSDataFlag.sgvs:
+            const sgvs: NSType.SGV[] = []
+            for (const sgv of data[key] as NSType.SGVRaw[]) {
+              sgvs.push({ ...sgv, date: new Date(sgv.mills) } as NSType.SGV)
             }
-            events.set(NSTypes.NSDataFlag.sgvs, sgvs)
+            events.set(NSType.NSDataFlag.sgvs, sgvs)
             break
 
-          case NSTypes.NSDataFlag.mbgs:
-            const mbgs: NSTypes.MBGS[] = []
-            for (const mbg of data[key] as NSTypes.MBGSRaw[]) {
-              mbgs.push({ ...mbg, date: new Date(mbg.mills) } as NSTypes.MBGS)
+          case NSType.NSDataFlag.mbgs:
+            const mbgs: NSType.MBGS[] = []
+            for (const mbg of data[key] as NSType.MBGSRaw[]) {
+              mbgs.push({ ...mbg, date: new Date(mbg.mills) } as NSType.MBGS)
             }
-            events.set(NSTypes.NSDataFlag.mbgs, mbgs)
+            events.set(NSType.NSDataFlag.mbgs, mbgs)
             break
 
-          case NSTypes.NSDataFlag.treatments:
-            const treatments: NSTypes.Treatment[] = []
-            const treatmentActions: NSTypes.TreatmentRemoval[] = []
-            for (const treatment of data[key] as NSTypes.TreatmentRaw[]) {
+          case NSType.NSDataFlag.treatments:
+            const treatments: NSType.Treatment[] = []
+            const treatmentActions: NSType.TreatmentRemoval[] = []
+            for (const treatment of data[key] as NSType.TreatmentRaw[]) {
               //first check if it's of type action
               if ('action' in treatment && treatment.action == 'remove') {
-                treatmentActions.push(treatment as NSTypes.TreatmentRemoval)
+                treatmentActions.push(treatment as NSType.TreatmentRemoval)
               } else {
                 if (treatmentWatchList.has(treatment.eventType)) {
-                  const dates: Partial<NSTypes.Treatment> = {}
+                  const dates: Partial<NSType.Treatment> = {}
                   if (treatment.timestamp) {
                     dates.timestamp = new Date(treatment.timestamp)
                   }
@@ -126,24 +126,28 @@ export class NS extends EventEmitter {
                   treatments.push({
                     ...treatment,
                     ...dates,
-                  } as NSTypes.Treatment)
+                  } as NSType.Treatment)
                 } else {
                   //skip
                 }
               }
             }
-            events.set(NSTypes.NSDataFlag.treatments, treatments)
+            events.set(NSType.NSDataFlag.treatments, treatments)
             if (treatmentActions.length > 0) {
-              events.set(NSTypes.NSDataFlag.treatments_removal, treatmentActions)
+              events.set(NSType.NSDataFlag.treatments_removal, treatmentActions)
             }
             break
         }
       }
     }
     for (const key of events.keys()) {
-      const eventList = events.get(key as NSTypes.NSDataFlag)
+      const eventList = events.get(key as NSType.NSDataFlag)
       if (eventList && eventList.length > 0) {
-        this.emit(key, eventList)
+        let emitEvent: NSType.Events = key
+        if (isHistory) {
+          emitEvent = ('history_' + key) as NSType.Events
+        }
+        this.emit(emitEvent, eventList)
       }
     }
   }
